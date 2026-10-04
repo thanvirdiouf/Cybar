@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lua: [luajit, lua54]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.lua }}
+      - name: Install X11 test dependencies
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth fonts-dejavu-core
+      - name: Check formatting
+        run: cargo fmt --check
+      - name: Test
+        run: cargo test --locked --no-default-features --features ${{ matrix.lua }}
+      - name: Clippy
+        run: cargo clippy --locked --all-targets --no-default-features --features ${{ matrix.lua }} -- -D warnings
+      - name: Validate shipped examples
+        run: |
+          cargo run --locked --no-default-features --features ${{ matrix.lua }} -- --config examples/config.lua check
+          cargo run --locked --no-default-features --features ${{ matrix.lua }} -- --config examples/custom.lua check
+      - name: X11 protocol integration
+        run: xvfb-run -a sh -c 'CYBAR_TEST_DISPLAY="$DISPLAY" cargo test --locked --no-default-features --features ${{ matrix.lua }} --test x11_integration -- --nocapture'
+      - name: Daemon and CLI smoke test
+        run: xvfb-run -a python3 scripts/xvfb-smoke.py target/debug/cybar
+  dependencies:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lua: [luajit, lua54]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: deny-${{ matrix.lua }}
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --locked
+      - name: Audit licenses, advisories, bans, and sources
+        run: cargo deny --no-default-features --features ${{ matrix.lua }} check

@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+[graph]
+targets = ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu"]
+# The Lua features are mutually exclusive. CI overrides features for each build.
+all-features = false
+no-default-features = true
+features = ["luajit"]
+
+[advisories]
+db-urls = ["https://github.com/RustSec/advisory-db"]
+yanked = "deny"
+unmaintained = "all"
+unsound = "all"
+unused-ignored-advisory = "deny"
+# Only these two INFO Unmaintained advisories are accepted for the locked font
+# stack. Security advisories and yanked crates remain errors. Migration and
+# removal criteria are recorded in docs/dependency-licenses.md.
+ignore = [
+  { id = "RUSTSEC-2026-0206", reason = "Informational rustybuzz maintenance notice: cosmic-text 0.14.2 and usvg 0.45.1 require it. Migrate the tested text/SVG stack to harfrust together; see docs/dependency-licenses.md." },
+  { id = "RUSTSEC-2026-0192", reason = "Informational ttf-parser maintenance notice: required by the locked cosmic-text/fontdb/rustybuzz stack. cosmic-text 0.17.2 still uses fontdb 0.23 and retains it; migrate font coverage and upstream dependencies to the maintained stack. See docs/dependency-licenses.md." },
+]
+
+[licenses]
+confidence-threshold = 0.93
+unused-allowed-license = "warn"
+allow = [
+  "GPL-3.0-or-later",
+  "MIT",
+  "Apache-2.0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "CC0-1.0",
+  "Unicode-3.0",
+  "MPL-2.0",
+]
+
+[bans]
+# Both text/SVG and image stacks currently resolve a few distinct crate versions.
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

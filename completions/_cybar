@@ -1,0 +1,257 @@
+#compdef cybar
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+autoload -U is-at-least
+
+_cybar() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cybar_commands" \
+"*::: :->cybar" \
+&& ret=0
+    case $state in
+    (cybar)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cybar-command-$line[1]:"
+        case $line[1] in
+            (check)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(reload)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(quit)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(toggle)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+'::target:_default' \
+&& ret=0
+;;
+(msg)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+':module:_default' \
+'*::text:_default' \
+&& ret=0
+;;
+(request)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+':module:_default' \
+'*::text:_default' \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+'--config=[]:CONFIG:_files' \
+'--timeout=[]:TIMEOUT:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+':shell:(bash elvish fish powershell zsh)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cybar__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cybar-help-command-$line[1]:"
+        case $line[1] in
+            (check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(reload)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(quit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(toggle)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(msg)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(request)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_cybar_commands] )) ||
+_cybar_commands() {
+    local commands; commands=(
+'check:Validate the Lua configuration without opening an X window' \
+'reload:Reload configuration; keep the current bars if validation fails' \
+'quit:Stop the running instance and release its windows and tray selection' \
+'toggle:Show or hide all bars, or one bar/monitor by name' \
+'msg:Deliver a message to a named module without waiting for a reply' \
+'request:Deliver a message and print the module handler'\''s return value' \
+'completions:Print shell completions' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cybar commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__check_commands] )) ||
+_cybar__subcmd__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar check commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__completions_commands] )) ||
+_cybar__subcmd__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar completions commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help_commands] )) ||
+_cybar__subcmd__help_commands() {
+    local commands; commands=(
+'check:Validate the Lua configuration without opening an X window' \
+'reload:Reload configuration; keep the current bars if validation fails' \
+'quit:Stop the running instance and release its windows and tray selection' \
+'toggle:Show or hide all bars, or one bar/monitor by name' \
+'msg:Deliver a message to a named module without waiting for a reply' \
+'request:Deliver a message and print the module handler'\''s return value' \
+'completions:Print shell completions' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cybar help commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__check_commands] )) ||
+_cybar__subcmd__help__subcmd__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help check commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__completions_commands] )) ||
+_cybar__subcmd__help__subcmd__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help completions commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__help_commands] )) ||
+_cybar__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help help commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__msg_commands] )) ||
+_cybar__subcmd__help__subcmd__msg_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help msg commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__quit_commands] )) ||
+_cybar__subcmd__help__subcmd__quit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help quit commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__reload_commands] )) ||
+_cybar__subcmd__help__subcmd__reload_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help reload commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__request_commands] )) ||
+_cybar__subcmd__help__subcmd__request_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help request commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__help__subcmd__toggle_commands] )) ||
+_cybar__subcmd__help__subcmd__toggle_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar help toggle commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__msg_commands] )) ||
+_cybar__subcmd__msg_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar msg commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__quit_commands] )) ||
+_cybar__subcmd__quit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar quit commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__reload_commands] )) ||
+_cybar__subcmd__reload_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar reload commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__request_commands] )) ||
+_cybar__subcmd__request_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar request commands' commands "$@"
+}
+(( $+functions[_cybar__subcmd__toggle_commands] )) ||
+_cybar__subcmd__toggle_commands() {
+    local commands; commands=()
+    _describe -t commands 'cybar toggle commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_cybar" ]; then
+    _cybar "$@"
+else
+    compdef _cybar cybar
+fi

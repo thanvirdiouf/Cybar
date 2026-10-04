@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="184" viewBox="0 0 680 184" role="img" aria-labelledby="title desc">
+  <title id="title">Cybar</title>
+  <desc id="desc">Cybar project logo: a modular cyan C and the Cybar wordmark.</desc>
+  <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+  <rect width="680" height="184" rx="24" fill="#11111b"/>
+  <g transform="translate(24 28)">
+    <path d="M96 34H53C39 34 30 44 30 58v12c0 14 9 24 23 24h43" fill="none" stroke="#89dceb" stroke-width="14" stroke-linecap="round"/>
+    <rect x="56" y="55" width="15" height="18" rx="4" fill="#89b4fa"/>
+    <rect x="78" y="55" width="15" height="18" rx="4" fill="#a6e3a1"/>
+    <rect x="100" y="55" width="15" height="18" rx="4" fill="#cba6f7"/>
+  </g>
+  <text x="177" y="111" font-family="DejaVu Sans, sans-serif" font-size="78" font-weight="700" letter-spacing="-3" fill="#cdd6f4">Cybar</text>
+  <text x="181" y="143" font-family="DejaVu Sans Mono, monospace" font-size="12" letter-spacing="2.2" fill="#9399b2">A SCRIPTABLE X11 STATUS BAR</text>
+  <rect x="575" y="63" width="7" height="58" rx="3.5" fill="#313244"/>
+  <rect x="592" y="84" width="7" height="37" rx="3.5" fill="#89b4fa"/>
+  <rect x="609" y="74" width="7" height="47" rx="3.5" fill="#a6e3a1"/>
+  <rect x="626" y="94" width="7" height="27" rx="3.5" fill="#cba6f7"/>
+</svg>

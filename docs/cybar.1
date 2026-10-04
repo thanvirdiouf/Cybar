@@ -1,0 +1,119 @@
+.\" SPDX-License-Identifier: GPL-3.0-or-later
+.TH CYBAR 1 "2026-10-03" "Cybar 0.1.0" "User Commands"
+.SH NAME
+cybar \- an X11 status bar configured in Lua
+.SH SYNOPSIS
+.B cybar
+.RI [ --config " path"]
+.br
+.B cybar
+.RI [ --config " path"] " check"
+.br
+.B cybar
+.RI [ --timeout " ms"] " {reload|quit|toggle [target]}"
+.br
+.B cybar
+.RI [ --timeout " ms"] " {msg|request} module text..."
+.br
+.B cybar completions
+.I shell
+.SH DESCRIPTION
+Cybar creates status bars on a Linux X11 desktop. Configuration is a Lua file
+returning a table of bars, themes, sections, and modules. LuaJIT is the default
+build; Lua 5.4 is a mutually exclusive build option. Lua is bundled at build time.
+Wayland is not supported.
+.PP
+Built-in modules show EWMH workspaces, the active window title, the clock, CPU
+and RAM usage, and an XEMBED system tray. Custom sources poll Lua functions,
+run commands asynchronously, or consume file/socket/command streams.
+.SH OPTIONS
+.TP
+.BI --config " path"
+Read this configuration instead of the default. This applies to daemon startup
+and check; control commands operate on the running display-specific instance.
+.TP
+.BI --timeout " ms"
+Client request timeout in milliseconds. Default: 1000. Applicable to reload,
+quit, toggle, and request. Message delivery is fire-and-forget.
+The target-existence preflight for msg also uses this timeout.
+.TP
+.B --help
+Display command help.
+.TP
+.B --version
+Display the program version.
+.SH COMMANDS
+.TP
+.B check
+Evaluate and validate configuration without opening X windows. Lua construction
+code runs, so any direct Lua I/O in the file also runs.
+.TP
+.B reload
+Reload configuration. On load, validation, or preparation failure, keep the
+active bars and return the error to the client.
+.TP
+.B quit
+Stop the daemon and release windows, reserved screen space, and the tray.
+.TP
+.B toggle [target]
+Show or hide all bars, or the named bar/monitor. Hidden bars release their struts.
+.TP
+.B msg module text...
+Check that the named module exists, then send text to its on_message handler
+and exit after writing.
+Callback errors are logged by the daemon, with no reply.
+.TP
+.B request module text...
+Invoke on_message and print its return value. Exit nonzero on timeout or error.
+.TP
+.B completions shell
+Print completions for bash, elvish, fish, powershell, or zsh.
+.SH SIGNALS
+.TP
+.B SIGUSR1
+Reload configuration.
+.TP
+.B SIGINT, SIGTERM
+Shut down cleanly.
+.SH FILES
+.TP
+.B $XDG_CONFIG_HOME/cybar/config.lua
+Default config when XDG_CONFIG_HOME is set.
+.TP
+.B ~/.config/cybar/config.lua
+Default config otherwise.
+.TP
+.B $XDG_RUNTIME_DIR/cybar/display-<hex-display>.sock
+Private JSON Lines control socket. The containing directory has mode 0700;
+the socket has mode 0600. If XDG_RUNTIME_DIR is unset, Cybar uses a private
+/tmp/cybar-<uid> directory.
+.SH ENVIRONMENT
+.TP
+.B DISPLAY, XAUTHORITY
+Select and authorize the X11 connection. DISPLAY also selects the control socket.
+.TP
+.B XDG_CONFIG_HOME, HOME
+Locate configuration and expand tilde paths.
+.TP
+.B XDG_RUNTIME_DIR
+Locate the private control socket.
+.SH EXIT STATUS
+Zero on success; nonzero on invalid startup configuration, missing instance,
+unknown target, request timeout, or other errors. Fire-and-forget messages cannot
+report daemon-side handler errors to their sender.
+.SH NOTES
+Module targets accept name@monitor to select a replicated module on one output.
+An unqualified name selects the primary output's copy, or the first matching
+instance.
+.PP
+All Lua callbacks run on the main thread and must return promptly. Use spawn,
+exec, after, every, and socket helpers for asynchronous work. The watchdog logs
+slow calls after they return; it cannot interrupt them.
+.PP
+Detached exec commands continue through configuration reload and daemon shutdown.
+Captured spawn jobs and timers are retired with their configuration generation.
+.PP
+Configuration and required Lua files are watched with debounce when auto_reload
+is enabled. Errors appear on daemon stderr, not in desktop notifications.
+.SH LICENSE
+GPL-3.0-or-later. See the installed license and source for dependency notices.

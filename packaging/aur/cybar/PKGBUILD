@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# TEMPLATE: configure the real release repository before makepkg.
+# Example: CYBAR_REPOSITORY=https://your-host/your-user/cybar.git makepkg -si
+pkgname=cybar
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='An X11 status bar configured in Lua (luajit)'
+arch=('x86_64' 'aarch64')
+_repository="${CYBAR_REPOSITORY:-https://example.invalid/cybar.git}"
+url="${_repository%.git}"
+license=('GPL-3.0-or-later')
+depends=('gcc-libs' 'glibc' 'fontconfig')
+makedepends=('rust' 'git')
+provides=('cybar')
+conflicts=('cybar-git' 'cybar-lua54' 'cybar-lua54-git')
+source=("cybar::git+${_repository}#tag=v${pkgver}")
+sha256sums=('SKIP')
+_lua=luajit
+
+prepare() {
+  cd "$srcdir/cybar"
+  cargo fetch --locked
+}
+
+build() {
+  cd "$srcdir/cybar"
+  cargo build --release --frozen --no-default-features --features "$_lua"
+}
+
+check() {
+  cd "$srcdir/cybar"
+  cargo test --frozen --no-default-features --features "$_lua"
+  target/release/cybar --config examples/config.lua check
+}
+
+package() {
+  cd "$srcdir/cybar"
+  install -Dm755 target/release/cybar "$pkgdir/usr/bin/cybar"
+  install -Dm644 docs/cybar.1 "$pkgdir/usr/share/man/man1/cybar.1"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/cybar/README.md"
+  install -Dm644 BUILD.md "$pkgdir/usr/share/doc/cybar/BUILD.md"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 LICENSE "$pkgdir/usr/share/doc/cybar/LICENSE"
+  install -Dm644 examples/config.lua "$pkgdir/usr/share/doc/cybar/config.lua"
+  for document in docs/*.md; do
+    install -Dm644 "$document" "$pkgdir/usr/share/doc/cybar/docs/${document##*/}"
+  done
+  for example in examples/*.lua; do
+    install -Dm644 "$example" "$pkgdir/usr/share/doc/cybar/examples/${example##*/}"
+  done
+  if [[ -d assets ]]; then
+    cp -a assets "$pkgdir/usr/share/doc/cybar/assets"
+  fi
+  mkdir -p "$pkgdir/usr/share/bash-completion/completions" "$pkgdir/usr/share/zsh/site-functions" "$pkgdir/usr/share/fish/vendor_completions.d"
+  target/release/cybar completions bash > "$pkgdir/usr/share/bash-completion/completions/cybar"
+  target/release/cybar completions zsh > "$pkgdir/usr/share/zsh/site-functions/_cybar"
+  target/release/cybar completions fish > "$pkgdir/usr/share/fish/vendor_completions.d/cybar.fish"
+}

@@ -1,0 +1,7 @@
+/target/
+/.build/
+*.deb
+*.pkg.tar.*
+/dist/
+__pycache__/
+*.pyc
